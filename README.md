@@ -45,7 +45,9 @@ Before you begin, ensure you have met the following requirements:
 git clone https://github.com/XCVI1/selfhosted-gitlab-ansible.git
 ```
 
-2. Run the Ansible playbook:
+2. If you want to deploy on a remote server, modify the inventory.ini file to specify the IP addresses or hostnames of your target machines.
+
+3. Run the Ansible playbook:
 
 ```sh
 ansible-playbook -i inventory.ini playbook.yml -K
@@ -75,3 +77,4 @@ After deployment, you can access GitLab at `http://localhost:8080` or `http://gi
 - [x] Template docker compose.
 - [x] Self-hosted GitLab CE and GitLab Runner.
 - [] GitLab Runners.
+
