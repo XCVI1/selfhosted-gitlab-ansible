@@ -1,6 +1,8 @@
-- name: Install Docker and deploy GitLab
+- name: Install Docker and deploy GitLab CI
   hosts: gitlab
   become: yes
+  vars:
+    user_home: "{{ lookup('env', 'HOME') }}"
 
   vars_prompt:
     - name: gitlab_root_password
@@ -10,36 +12,67 @@
 
   tasks:
 
-    - name: Install required packages
+    - name: Install required packages for docker
       apt:
         name:
-          - docker.io
-          - docker-compose-plugin
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
         state: present
         update_cache: yes
+
+    - name: Add docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+        filename: docker
+
+    - name: Install docker and docker compose
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
 
     - name: Enable docker
       systemd:
         name: docker
-        enabled: yes
-        state: started
-    
-    - name: Project directory
+         state: started
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user_id }}"
+        groups: docker
+        append: yes
+
+    - name: Creating project directory
       file:
-        path: "{{ ansible_env.HOME }}"/gitlab-docker
+        path: "{{ user_home }}/gitlab-docker"
         state: directory
+        mode: "0755"
+      become_user: "{{ ansible_user_id }}"
+      become: no
 
     - name: Copy docker-compose.yml
       template:
         src: docker-compose.yml.j2
-        dest: "{{ ansible_env.HOME }}"/gitlab-docker/docker-compose.yml
+        dest: "{{ user_home }}/gitlab-docker/docker-compose.yml"
+      become_user: "{{ ansible_user_id }}"
+      become: no
 
-    - name: Run docker compose
+    - name: Run docker compose. This task can be longer, up to 5 minutes
       command: docker compose up -d
       args:
-        chdir: "{{ ansible_env.HOME }}"/gitlab-docker
-
-
-
+        chdir: "{{ user_home }}/gitlab-docker"
+      become_user: "{{ ansible_user_id }}"
+      become: no
 
 
