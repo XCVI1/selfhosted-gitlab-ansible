@@ -1,0 +1,45 @@
+- name: Install Docker and deploy GitLab
+  hosts: gitlab
+  become: yes
+
+  vars_prompt:
+    - name: gitlab_root_password
+      prompt: "Enter GitLab root password"
+      private: yes
+      confirm: yes
+
+  tasks:
+
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Enable docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+    
+    - name: Project directory
+      file:
+        path: "{{ ansible_env.HOME }}"/gitlab-docker
+        state: directory
+
+    - name: Copy docker-compose.yml
+      template:
+        src: docker-compose.yml.j2
+        dest: "{{ ansible_env.HOME }}"/gitlab-docker/docker-compose.yml
+
+    - name: Run docker compose
+      command: docker compose up -d
+      args:
+        chdir: "{{ ansible_env.HOME }}"/gitlab-docker
+
+
+
+
+
