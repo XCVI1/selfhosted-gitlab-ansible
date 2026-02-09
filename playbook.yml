@@ -6,7 +6,7 @@
 
   vars_prompt:
     - name: gitlab_root_password
-      prompt: "Enter GitLab root password"
+      prompt: "Enter GitLab root password. 8+ characters"
       private: yes
       confirm: yes
 
