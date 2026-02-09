@@ -1,0 +1,9 @@
+# Local files
+*.log
+*.swp
+*.swo
+
+.vscode/
+
+*.env
+
