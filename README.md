@@ -28,7 +28,7 @@ The architecture of this project includes the following components:
 
 ## Prerequisites
 
-Before you begin, ensure you have met the following requirements:
+Before you begin, you need to have:
 
 - **Operating System**: Ubuntu 20.04/22.04 or any other Debian-based distribution.
 - **Ansible**: Version 2.9 or higher.
@@ -76,16 +76,9 @@ After deployment, you can access GitLab at `http://localhost:8080` or `http://gi
 - [x] Ansible playbook.
 - [x] Template docker compose.
 - [x] Self-hosted GitLab CE and GitLab Runner.
-- [ ] GitLab Runners.
+- [ ] Automatic creation GitLab runners.
 
 <p align="right">
   <a href="#readme-top">
     <img src="https://img.shields.io/badge/Back_to_Top-↑-blue?style=for-the-badge" />
   </a>
-</p>
-
-
-
-
-
-
