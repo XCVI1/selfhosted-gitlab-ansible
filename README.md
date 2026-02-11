@@ -77,7 +77,9 @@ After deployment, you can access GitLab at `http://localhost:8080` or `http://gi
 - [x] Template docker compose.
 - [x] Self-hosted GitLab CE and GitLab Runner.
 - [ ] GitLab Runners.
+
 <a href="#self-hosted-gitlab-cicd-infrastructure-ansible--docker">Back to top</a>
+
 
 
 
