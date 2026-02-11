@@ -1,5 +1,5 @@
+<a id="readme-top"></a>
 # Self-Hosted GitLab CI/CD Infrastructure (Ansible + Docker)
----
 
 ## Project Overview
 
@@ -78,7 +78,13 @@ After deployment, you can access GitLab at `http://localhost:8080` or `http://gi
 - [x] Self-hosted GitLab CE and GitLab Runner.
 - [ ] GitLab Runners.
 
-<a href="#self-hosted-gitlab-cicd-infrastructure-ansible--docker">Back to top</a>
+<p align="right">
+  <a href="#readme-top">
+    <img src="https://img.shields.io/badge/Back_to_Top-↑-blue?style=for-the-badge" />
+  </a>
+</p>
+
+
 
 
 
