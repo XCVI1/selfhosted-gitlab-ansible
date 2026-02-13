@@ -71,6 +71,10 @@ After deployment, you can access GitLab at `http://localhost:8080` or `http://gi
   - Change directory to `gitlab-docker`
   - Use ``docker exec -it gitlab-runner gitlab-runner register`` and follow instruction.
 
+## Change password
+
+If you need to change your root password, you can make ch_root_pswd.sh executable (```chmod +x ./ch_root_pswd.sh```) and run him (``./ch_root_pswd.sh``)
+
 ## Roadmap
 
 - [x] Ansible playbook.
