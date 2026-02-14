@@ -63,24 +63,39 @@ During execution, you need to:
 
 After deployment, you can access GitLab at `http://localhost:8080` or `http://gitlab:8080`.
 
+
+### Change password
+
+If you need to change your root password, you can make ch_root_pswd.sh executable:
+
+```sh
+chmod +x ./ch_root_pswd.sh
+```
+and run him:
+
+```sh
+./ch_root_pswd.sh
+```
 ### Registering GitLab Runner
 
-- Go to `http://localhost:8080/admin/runners`.
+- Go to http://localhost:8080/user/runners.
 - Copy the registration token.
 - Register the runner using the token:
-  - Change directory to `gitlab-docker`
-  - Use ``docker exec -it gitlab-runner gitlab-runner register`` and follow instruction.
+  - You need to run script with your token:
+```sh
+  ./register_runner.sh YOUR_TOKEN
+```
+    or
+```sh
+  REGISTRATION_TOKEN=your_token ./register_runner.sh
+```
 
-## Change password
-
-If you need to change your root password, you can make ch_root_pswd.sh executable (```chmod +x ./ch_root_pswd.sh```) and run him (``./ch_root_pswd.sh``)
-
-## Roadmap
+### Roadmap
 
 - [x] Ansible playbook.
 - [x] Template docker compose.
 - [x] Self-hosted GitLab CE and GitLab Runner.
-- [ ] Automatic creation GitLab runners.
+- [x] Automatic creation GitLab runners.
 
 <p align="right">
   <a href="#readme-top">
