@@ -2,13 +2,19 @@
 
 set -euo pipefail
 
+REGISTRATION_TOKEN="${1:-${REGISTRATION_TOKEN:-}}"
+
+if [ -z "$REGISTRATION_TOKEN" ]; then
+	echo "Usage: $0 <YOUR_TOKEN>"
+	exit 1
+fi
+
 GITLAB_URL="${GITLAB_URL:-http://gitlab}"
-REGISTRATION_TOKEN="${REGISTRATION_TOKEN:-}"
 RUNNER_NAME="${RUNNER_NAME:-auto-docker-runner}"
 DOCKER_IMAGE="${DOCKER_IMAGE:-alpine:latest}"
 
 if [ -z "$REGISTRATION_TOKEN" ]; then
-  echo "ERROR: REGISTRATION_TOKEN not specified"
+  echo "ERROR: REGISTRATION_TOKEN is empty"
   exit 1
 fi
 
@@ -25,22 +31,22 @@ fi
 NETWORK=$(docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}' gitlab-runner)
 
 if [ -z "$NETWORK" ]; then
-  echo "ERROR: could not detect docker network"
+  echo "ERROR: problem with gitlab network"
   exit 1
 fi
 
 echo "Detected network: $NETWORK"
 
-echo "Waiting for GitLab to become ready..."
+echo "Waiting GitLab"
 
 until docker exec gitlab curl -s http://localhost/-/health >/dev/null 2>&1; do
   sleep 5
-  echo "GitLab not ready yet..."
+  echo "GitLab not ready to connect"
 done
 
-echo "GitLab is healthy"
+echo "Connected to GitLab"
 
-echo "Registering GitLab Runner..."
+echo "Registering GitLab runner"
 
 docker exec -i gitlab-runner gitlab-runner register \
   --non-interactive \
@@ -55,9 +61,9 @@ docker exec -i gitlab-runner gitlab-runner register \
   --run-untagged="true" \
   --locked="false"
 
-echo "Runner successfully registered"
+echo "Runner registered"
 
 docker restart gitlab-runner
 
-echo "Runner is ready"
+echo "GitLab runner is restarted and ready to use"
 
