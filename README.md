@@ -85,7 +85,7 @@ and run him:
 ```sh
   ./register_runner.sh YOUR_TOKEN
 ```
-    or
+or
 ```sh
   REGISTRATION_TOKEN=your_token ./register_runner.sh
 ```
@@ -101,3 +101,4 @@ and run him:
   <a href="#readme-top">
     <img src="https://img.shields.io/badge/Back_to_Top-↑-blue?style=for-the-badge" />
   </a>
+
