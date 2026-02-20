@@ -28,7 +28,7 @@
         {{ backup_dir }}/{{ latest_backup.stdout | trim }}
 
     - name: Backup gitlab.rb config
-      shell: docker cp gitlab:/etc/gitlab/gitlab-secrets.json {{ backup_dir }}/gitlab.rb.bak
+      shell: docker cp gitlab:/etc/gitlab/gitlab.rb {{ backup_dir }}/gitlab.rb.bak
 
     - name: Backup gitlab-secrets.json
       shell: docker cp gitlab:/etc/gitlab/gitlab-secrets.json {{ backup_dir }}/gitlab-secrets.json.bak
@@ -54,4 +54,4 @@
 
     - name: Show backup summary
       debug:
-        msg: "{{ current_backups.stdout_lines }}"        
+        msg: "{{ current_backups.stdout_lines }}" 
