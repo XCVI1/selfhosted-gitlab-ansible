@@ -79,7 +79,7 @@
 
     - name: Copy docker-compose.yml
       template:
-        src: docker-compose.yml.j2
+        src: templates/docker-compose.yml.j2
         dest: "{{ user_home }}/gitlab-docker/docker-compose.yml"
       become_user: "{{ ansible_user_id }}"
       become: no
@@ -114,4 +114,11 @@
           - " GitLab is deployed and running "
           - " URL: http://localhost "
           - " Now, you can register runners "
-
+    
+    - name: Daily backup cron job
+      cron:
+        name: "Gitlab daily backup"
+        minute: "0"
+        hour: "2"
+        job: "ansible-playbook -i {{ lookup('env','HOME') }}/inventory.ini {{ lookup('env','HOME') }}/backup.yml >> /var/log/gitlab-backup.log 2>&1"
+        user: "{{ ansible_user }}"

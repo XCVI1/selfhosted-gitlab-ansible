@@ -1,10 +1,57 @@
-- name: Backup GitLab before upgrade
+- name: Backup GitLab
   hosts: gitlab
   become: yes
+  vars:
+    compose_dir: "{{ lookup('env','HOME') }}/gitlab-docker"
+    backup_dir: "{{ lookup('env','HOME') }}/gitlab-docker/data/backups"
+    backup_keep_count: 7
+
   tasks:
     - name: Run GitLab backup
       command: docker exec gitlab gitlab-backup create
+      register: backup_result
 
-- name: Verify backup file exists
-  shell: docker exec gitlab ls /var/opt/gitlab/backups
-  register: backup_check
+    - name: Get last backup filename
+      shell: docker exec gitlab ls -t /var/opt/gitlab/backups | head -1
+      register: latest_backup
+      changed_when: false
+
+    - name: Search for the backup directory
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy backup archive to host
+      shell: >
+        docker cp gitlab:/var/opt/gitlab/backups/{{ latest_backup.stdout | trim }}
+        {{ backup_dir }}/{{ latest_backup.stdout | trim }}
+
+    - name: Backup gitlab.rb config
+      shell: docker cp gitlab:/etc/gitlab/gitlab-secrets.json {{ backup_dir }}/gitlab.rb.bak
+
+    - name: Backup gitlab-secrets.json
+      shell: docker cp gitlab:/etc/gitlab/gitlab-secrets.json {{ backup_dir }}/gitlab-secrets.json.bak
+
+    - name: Old backups sorted by date
+      shell: ls -t {{ backup_dir }}/*_gitlab_backup.tar | tail -n +{{ backup_keep_count + 1 }}
+      register: old_backups
+      changed_when: false
+      failed_when: false
+
+    - name: Remove old backups
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop: "{{ old_backups.stdout_lines }}"
+      when: old_backups.stdout_lines | length > 0
+
+    - name: Show current backups
+      shell: ls -lh {{ backup_dir }}/*_gitlab_backup.tar
+      register: current_backups
+      changed_when: false
+      failed_when: false
+
+    - name: Show backup summary
+      debug:
+        msg: "{{ current_backups.stdout_lines }}"        

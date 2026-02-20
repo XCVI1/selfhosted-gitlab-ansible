@@ -11,6 +11,7 @@ This project automates the deployment of a self-hosted GitLab CI/CD environment 
 - **GitLab Deployment**: Deploys GitLab CE container with customizable settings.
 - **GitLab Runner**: Deploys and configures GitLab Runner container.
 - **Network Configuration**: Configures Docker network for seamless communication between containers.
+- **Automated Backups**: Daily backups with automatic rotation, runs before every upgrade.
 - **Security**: Optionally sets a custom root password for GitLab.
 
 ---
@@ -23,6 +24,25 @@ The architecture of this project includes the following components:
 2. **Docker Compose**: Manages the deployment of GitLab and GitLab Runner containers.
 3. **GitLab CE**: Self-hosted GitLab instance for source code management and CI/CD pipelines.
 4. **GitLab Runner**: Executes CI/CD jobs defined in GitLab.
+
+---
+
+## Project Structure
+
+```
+.
+├── inventory.ini
+├── playbook.yml          # Deployment
+├── upgrade.yml           # Version upgrade
+├── backup.yml            # Backup
+├── group_vars/
+│   └── gitlab.yml        # Variables (version, backup settings)
+├── templates/
+│   └── docker-compose.yml.j2
+└── scripts/
+    ├── ch_root_pswd.sh
+    └── register_runner.sh
+```
 
 ---
 
@@ -55,7 +75,7 @@ ansible-playbook -i inventory.ini playbook.yml -K
 During execution, you need to:
 
 * Enter the root (sudo) password.
-* Follow the prompts to set the root password fo GitLab.
+* Follow the prompts to set the root password for GitLab.
 
 ---
 
@@ -66,48 +86,56 @@ After deployment, you can access GitLab at `http://localhost:8080` or `http://gi
 
 ### Change password
 
-If you need to change your root password, you can make ch_root_pswd.sh executable:
+Make the script executable and run it:
 
 ```sh
-chmod +x ./ch_root_pswd.sh
-```
-and run him:
-
-```sh
-./ch_root_pswd.sh
+chmod +x ./scripts/ch_root_pswd.sh
+./scripts/ch_root_pswd.sh
 ```
 ### Registering GitLab Runner
 
-- Go to http://localhost:8080/user/runners.
-- Copy the registration token.
-- Register the runner using the token:
-  - You need to run script with your token:
+1. Go to `http://localhost:8080/user/runners` and copy the registration token.
+2. Run the script with your token:
 ```sh
-  ./register_runner.sh YOUR_TOKEN
+./scripts/register_runner.sh YOUR_TOKEN
 ```
-or
+
+Alternatively, you can pass the token as an environment variable:
 ```sh
-  REGISTRATION_TOKEN=your_token ./register_runner.sh
+REGISTRATION_TOKEN=your_token ./scripts/register_runner.sh
 ```
+
 ### Update version GitLab
 
 1. For update your GitLab to new version, you need to change the version line `gitlab_version` in file `~/group_vars/gitlab.yml` and specify the version you need.
 Example: `gitlab_version: "18.8.3-ce.0"`
-2. Move `update.yml` and `inventory.yml` to your main gitlab directory and run:
-`ansible-playbook -i inventory.yml update.yml -K`
+2. Move `upgrade.yml` and `inventory.yml` to your main gitlab directory and run:
+`ansible-playbook -i inventory.yml upgrade.yml -K`
 3. Write your sudo (root) password.
+
+### Backup Gitlab
+
+To create a backup, run:
+```sh
+ansible-playbook -i inventory.ini backup.yml -K
+```
+
+Backups are stored in `~/gitlab-docker/data/backups/`.
+The last 7 backups are kept saves automatically, older ones are deleted.
+
+Backups run automatically before every update.
 
 ### Roadmap
 
-- [x] Ansible playbook.
-- [x] Template docker compose.
-- [x] Self-hosted GitLab CE and GitLab Runner.
-- [x] Automatic creation GitLab runners.
-- [x] Gitlab version update funcion.
-- [ ] Automated bachu and restore for GitLab.
-  - [ ] Daily backups for GitlLab configurations.
-  - [ ] Backup of repositories and CI/CD pipelines.
-  - [ ] One-click restore functionality.
+- [x] Ansible playbook
+- [x] Docker Compose template (Jinja2)
+- [x] Self-hosted GitLab CE and GitLab Runner
+- [x] Automatic GitLab Runner registration
+- [x] GitLab version upgrade
+- [x] Automated backups with rotation
+- [ ] Backup restore playbook
+- [ ] HTTPS / SSL support
+- [ ] Email notifications
 
 <p align="right">
   <a href="#readme-top">
