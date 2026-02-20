@@ -1,0 +1,71 @@
+- name: Update GitLab
+  hosts: gitlab
+  become: yes
+  
+  vars:
+    compose_dir: "{{ lookup('env','HOME') }}/gitlab-docker"
+
+  tasks:
+
+    - name: Getings current gitlab version
+      shell: >
+        docker exec gitlab sh -c
+        "grep '^gitlab-ce ' /opt/gitlab/version-manifest.txt | cut -d' ' -f2"
+      register: gitlab_version_raw
+      changed_when: false
+
+    - name: Set current gitlab version
+      set_fact:
+        current_gitlab_version_full: "{{ gitlab_version_raw.stdout | trim }}"
+
+    - name: Short current version
+      set_fact:
+        current_gitlab_version: >-
+          {{ current_gitlab_version_full | regex_replace('-ce.*$', '') }}
+     
+    - name: Normalize gitlab version
+      set_fact:
+        target_gitlab_version_short: "{{ gitlab_version | regex_replace('-ce.*$', '') }}"
+
+    - name: Show both versions
+      debug:
+        msg:
+          - "Current version: {{ current_gitlab_version_full }}"
+          - "New version: {{ target_gitlab_version_short }}"
+
+    - name: Stop plabook if versions same
+      meta: end_play
+      when: current_gitlab_version == target_gitlab_version_short
+
+    - name: Set target gitlab image
+      set_fact:
+        gitlab_image: "gitlab/gitlab-ce:{{ gitlab_version }}"
+
+    - name: Write .env fiel with gitlab version
+      copy:
+        dest: "{{ compose_dir }}/.env"
+        content: "GITLAB_VERSION={{ gitlab_version }}\n"
+
+    - name: Pull new gitlab image
+      command: docker pull {{ gitlab_image }}
+   
+    - name: Stop containers
+      command: docker compose down
+      args:
+        chdir:  "{{ compose_dir }}"
+
+    - name: Start with new version gitlab
+      command: docker compose up -d --force-recreate
+      args:
+        chdir:  "{{ compose_dir }}"
+
+    - name: Waiting for launch gitlab
+      uri:
+        url: "http://localhost:8080"
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 25
+      delay: 15
+

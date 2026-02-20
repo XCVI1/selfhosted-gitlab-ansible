@@ -1,0 +1,10 @@
+- name: Backup GitLab before upgrade
+  hosts: gitlab
+  become: yes
+  tasks:
+    - name: Run GitLab backup
+      command: docker exec gitlab gitlab-backup create
+
+- name: Verify backup file exists
+  shell: docker exec gitlab ls /var/opt/gitlab/backups
+  register: backup_check

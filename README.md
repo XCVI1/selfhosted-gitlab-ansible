@@ -89,6 +89,13 @@ or
 ```sh
   REGISTRATION_TOKEN=your_token ./register_runner.sh
 ```
+### Update version GitLab
+
+1. For update your GitLab to new version, you need to change the version line `gitlab_version` in file `~/group_vars/gitlab.yml` and specify the version you need.
+Example: `gitlab_version: "18.8.3-ce.0"`
+2. Move `update.yml` and `inventory.yml` to your main gitlab directory and run:
+`ansible-playbook -i inventory.yml update.yml -K`
+3. Write your sudo (root) password.
 
 ### Roadmap
 
@@ -96,6 +103,11 @@ or
 - [x] Template docker compose.
 - [x] Self-hosted GitLab CE and GitLab Runner.
 - [x] Automatic creation GitLab runners.
+- [x] Gitlab version update funcion.
+- [ ] Automated bachu and restore for GitLab.
+  - [ ] Daily backups for GitlLab configurations.
+  - [ ] Backup of repositories and CI/CD pipelines.
+  - [ ] One-click restore functionality.
 
 <p align="right">
   <a href="#readme-top">
