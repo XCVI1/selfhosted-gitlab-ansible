@@ -7,6 +7,8 @@ on:
     branches: [main]
 
 jobs:
+
+#----------------Ansible lint and YAML validation--------------
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -45,5 +47,26 @@ jobs:
             jinja2.Template(open(f).read())
             print(f'OK: {f}')
           "
+#-------------Docker and docker-compose validation------------------
+  docker-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check Docker is running
+        run: |
+          docker --version
+          docker compose version
+          docker info
+
+      - name: Copy docker-compose template
+        run: cp templates/docker-compose.yml.j2 /tmp/docker-compose.yml
+
+      - name: Validate docker-compose syntax
+        env:
+          GITLAB_VERSION: "18.8.3-ce.0"
+        run: docker compose -f /tmp/docker-compose.yml config
+
 
 
