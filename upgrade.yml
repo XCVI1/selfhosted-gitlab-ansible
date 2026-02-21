@@ -1,4 +1,5 @@
-- import_playbook: backup.yml
+- name: Backup before upgrade
+  import_playbook: backup.yml
 
 - name: Update GitLab
   hosts: gitlab
@@ -46,6 +47,7 @@
       copy:
         dest: "{{ compose_dir }}/.env"
         content: "GITLAB_VERSION={{ gitlab_version }}\n"
+        mode: '0644'
 
     - name: Pull new gitlab image
       command: docker pull {{ gitlab_image }}
