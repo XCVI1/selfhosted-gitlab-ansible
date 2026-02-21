@@ -9,7 +9,7 @@ services:
       - "2222:22"
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url "http://gitlab"
+        external_url 'http://gitlab'
     volumes:
       - ./config:/etc/gitlab
       - ./logs:/var/log/gitlab
@@ -32,5 +32,4 @@ volumes:
   gitlab_runner_config:
 networks:
   default:
-    name: gitlab_default
-~                                 
+    name: gitlab_default                                 
