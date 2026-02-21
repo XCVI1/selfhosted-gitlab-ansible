@@ -35,6 +35,7 @@ The architecture of this project includes the following components:
 ├── playbook.yml          # Deployment
 ├── upgrade.yml           # Version upgrade
 ├── backup.yml            # Backup
+├── restore.yml           # Restore to backup
 ├── group_vars/
 │   └── gitlab.yml        # Variables (version, backup settings)
 ├── templates/
