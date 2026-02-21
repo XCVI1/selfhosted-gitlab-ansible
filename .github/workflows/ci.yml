@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          pip install ansible ansible-lint
+
+      - name: Lint playbooks
+        run: |
+          ansible-lint playbook.yml
+          ansible-lint backup.yml
+          ansible-lint restore.yml
+          ansible-lint upgrade.yml
+
+      - name: Validate YAML syntax
+        run: |
+          python3 -c "
+          import yaml, sys, glob
+          for f in glob.glob('**/*.yml', recursive=True):
+            try:
+              yaml.safe_load(open(f))
+              print(f'OK: {f}')
+            except yaml.YAMLError as e:
+              print(f'ERROR: {f}: {e}')
+              sys.exit(1)
+          "
+      - name: Validate Jinja2 templates
+        run: |
+          pip install jinja2
+          python3 -c "
+          import jinja2, glob
+          for f in glob.glob('templates/*.j2'):
+            jinja2.Template(open(f).read())
+            print(f'OK: {f}')
+          "
+
+
