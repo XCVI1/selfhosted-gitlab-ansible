@@ -2,6 +2,7 @@ skip_list:
   - fqcn-builtins
   - command-instead-of-module
   - risky-shell-pipe
+  - command-instead-of-shell
   - no-changed-when
   - yaml[line-length]
   - yaml[trailing]

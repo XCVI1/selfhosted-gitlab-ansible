@@ -29,7 +29,7 @@
         msg: "Restoring {{ backup_file }}"
 
     - name: Copy backup to container
-      shell: >
+      command: >
         docker cp {{ backup_dir }}/{{ backup_file }}
         gitlab:/var/opt/gitlab/backups/{{ backup_file }}
 
@@ -39,10 +39,10 @@
         /var/opt/gitlab/backups/{{ backup_file }}
 
     - name: Restore gitlab-secrets.json
-      shell: docker cp {{ backup_dir }}/gitlab-secrets.json.bak gitlab:/etc/gitlab/gitlab-secrets.json
+      command: docker cp {{ backup_dir }}/gitlab-secrets.json.bak gitlab:/etc/gitlab/gitlab-secrets.json
 
     - name: Restore gitlab.rb config
-      shell: docker cp {{ backup_dir }}/gitlab.rb.bak gitlab:/etc/gitlab/gitlab.rb
+      command: docker cp {{ backup_dir }}/gitlab.rb.bak gitlab:/etc/gitlab/gitlab.rb
 
     - name: Stop gitlab services
       command: docker exec gitlab gitlab-ctl stop puma

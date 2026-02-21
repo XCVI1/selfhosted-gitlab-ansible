@@ -3,13 +3,12 @@
 - name: Update GitLab
   hosts: gitlab
   become: yes
-  
   vars:
     compose_dir: "{{ lookup('env','HOME') }}/gitlab-docker"
 
   tasks:
 
-    - name: Getings current gitlab version
+    - name: Geting current gitlab version
       shell: >
         docker exec gitlab sh -c
         "grep '^gitlab-ce ' /opt/gitlab/version-manifest.txt | cut -d' ' -f2"
@@ -35,7 +34,7 @@
           - "Current version: {{ current_gitlab_version_full }}"
           - "New version: {{ target_gitlab_version_short }}"
 
-    - name: Stop plabook if versions same
+    - name: Stop playbook if versions same
       meta: end_play
       when: current_gitlab_version == target_gitlab_version_short
 
@@ -43,7 +42,7 @@
       set_fact:
         gitlab_image: "gitlab/gitlab-ce:{{ gitlab_version }}"
 
-    - name: Write .env fiel with gitlab version
+    - name: Write .env file with gitlab version
       copy:
         dest: "{{ compose_dir }}/.env"
         content: "GITLAB_VERSION={{ gitlab_version }}\n"
@@ -54,7 +53,7 @@
     - name: Stop containers
       command: docker compose down
       args:
-        chdir:  "{{ compose_dir }}"
+        chdir: "{{ compose_dir }}"
 
     - name: Start with new version gitlab
       command: docker compose up -d --force-recreate

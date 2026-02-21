@@ -23,15 +23,15 @@
         mode: '0755'
 
     - name: Copy backup archive to host
-      shell: >
+      command: >
         docker cp gitlab:/var/opt/gitlab/backups/{{ latest_backup.stdout | trim }}
         {{ backup_dir }}/{{ latest_backup.stdout | trim }}
 
     - name: Backup gitlab.rb config
-      shell: docker cp gitlab:/etc/gitlab/gitlab.rb {{ backup_dir }}/gitlab.rb.bak
+      command: docker cp gitlab:/etc/gitlab/gitlab.rb {{ backup_dir }}/gitlab.rb.bak
 
     - name: Backup gitlab-secrets.json
-      shell: docker cp gitlab:/etc/gitlab/gitlab-secrets.json {{ backup_dir }}/gitlab-secrets.json.bak
+      command: docker cp gitlab:/etc/gitlab/gitlab-secrets.json {{ backup_dir }}/gitlab-secrets.json.bak
 
     - name: Old backups sorted by date
       shell: ls -t {{ backup_dir }}/*_gitlab_backup.tar | tail -n +{{ backup_keep_count + 1 }}
