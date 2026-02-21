@@ -1,0 +1,82 @@
+- name: Restore GitLab
+  hosts: gitlab
+  become: yes
+  vars:
+    compose_dir: "{{ lookup('env','HOME') }}/gitlab-docker"
+    backup_dir: "{{ lookup('env','HOME') }}/gitlab-docker/data/backups"
+
+  tasks:
+    - name: Show available backups
+      shell: ls -lh {{ backup_dir }}/*_gitlab_backup.tar
+      register: available_backups
+      changed_when: false
+
+    - name: Print available backups
+      debug:
+        msg: "{{ available_backups.stdout_lines }}"
+
+    - name: Get latest backup filename
+      shell: ls -t {{ backup_dir }}/*_gitlab_backup.tar | head -1 | xargs basename
+      register: latest_backup
+      changed_when: false
+
+    - name: Set backup filename to restore
+      set_fact:
+        backup_file: "{{ restore_backup | default(latest_backup.stdout | trim) }}"
+
+    - name: Show which backup will be restored
+      debug:
+        msg: "Restoring {{ backup_file }}"
+
+    - name: Copy backup to container
+      shell: >
+        docker cp {{ backup_dir }}/{{ backup_file }}
+        gitlab:/var/opt/gitlab/backups/{{ backup_file }}
+
+    - name: Set permissions on backup file
+      command: >
+        docker exec gitlab chown git:git
+        /var/opt/gitlab/backups/{{ backup_file }}
+
+    - name: Restore gitlab-secrets.json
+      shell: docker cp {{ backup_dir }}/gitlab-secrets.json.bak gitlab:/etc/gitlab/gitlab-secrets.json
+
+    - name: Restore gitlab.rb config
+      shell: docker cp {{ backup_dir }}/gitlab.rb.bak gitlab:/etc/gitlab/gitlab.rb
+
+    - name: Stop gitlab services
+      command: docker exec gitlab gitlab-ctl stop puma
+    - name: Stop sidekiq
+      command: docker exec gitlab gitlab-ctl stop sidekiq
+
+    - name: Run restore
+      command: >
+        docker exec -e GITLAB_ASSUME_YES=1 gitlab
+        gitlab-backup restore
+        BACKUP={{ backup_file | regex_replace('_gitlab_backup\.tar$', '') }}
+      register: restore_result
+
+    - name: Reconfigure Gitlab after restore
+      command: docker exec gitlab gitlab-ctl reconfigure
+
+    - name: Restart Gitlab
+      command: docker exec gitlab gitlab-ctl restart
+
+    - name: Wait for Gitlab to be ready
+      uri:
+        url: "http://localhost:8080"
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 30
+      delay: 15
+
+    - name: Run gitlab health check
+      command: docker exec gitlab gitlab-rake gitlab:check SANITIZE=true
+      register: health_check
+      changed_when: false
+
+    - name: Show health check result
+      debug:
+        msg: "{{ health_check.stdout_lines }}"

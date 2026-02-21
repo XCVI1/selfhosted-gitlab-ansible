@@ -125,6 +125,25 @@ The last 7 backups are kept saves automatically, older ones are deleted.
 
 Backups run automatically before every update.
 
+### Restore GitLab
+
+To restore the latest backup:
+```sh
+ansible-playbook -i inventory.ini restore.yml -K
+```
+
+To restore a specific backup, use filename:
+```sh
+ansible-playbook -i inventory.ini restore.yml -K \
+  -e "restore_backup=YOUR_BACKUP_FILENAME.tar"
+```
+
+List with available backups listed automatically at the start of the playbook.
+
+> **Important:** `gitlab-secrets.json` is restored automatically.
+> Without it, encrypted data cannot be decrypted.  
+
+
 ### Roadmap
 
 - [x] Ansible playbook
@@ -133,7 +152,7 @@ Backups run automatically before every update.
 - [x] Automatic GitLab Runner registration
 - [x] GitLab version upgrade
 - [x] Automated backups with rotation
-- [ ] Backup restore playbook
+- [x] Backup restore playbook
 - [ ] HTTPS / SSL support
 - [ ] Email notifications
 
