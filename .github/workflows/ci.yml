@@ -47,6 +47,13 @@ jobs:
             jinja2.Template(open(f).read())
             print(f'OK: {f}')
           "
+
+      - name: Validate bash scripts
+        run: |
+          for f in scripts/*.sh; do
+            bash -n "$f" && echo "OK: $f"
+          done
+
 #-------------Docker and docker-compose validation------------------
   docker-check:
     runs-on: ubuntu-latest
