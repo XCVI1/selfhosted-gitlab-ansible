@@ -21,7 +21,9 @@
         path: "{{ backup_dir }}"
         state: directory
         mode: '0755'
-
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+          
     - name: Copy backup archive to host
       command: >
         docker cp gitlab:/var/opt/gitlab/backups/{{ latest_backup.stdout | trim }}
@@ -32,6 +34,15 @@
 
     - name: Backup gitlab-secrets.json
       command: docker cp gitlab:/etc/gitlab/gitlab-secrets.json {{ backup_dir }}/gitlab-secrets.json.bak
+
+    - name: Set permissions on backup files
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+        recurse: yes
+        mode: '0644'
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
 
     - name: Old backups sorted by date
       shell: ls -t {{ backup_dir }}/*_gitlab_backup.tar | tail -n +{{ backup_keep_count + 1 }}
