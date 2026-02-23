@@ -42,7 +42,9 @@ The architecture of this project includes the following components:
 │   └── docker-compose.yml.j2
 └── scripts/
     ├── ch_root_pswd.sh
-    └── register_runner.sh
+    ├── register_runner.sh
+    ├── status.sh        # Show gitlab status
+    └── cleanup.sh       # Remove unused Docker images
 ```
 
 ---
@@ -84,6 +86,24 @@ During execution, you need to:
 
 After deployment, you can access GitLab at `http://localhost:8080` or `http://gitlab:8080`.
 
+### Makefile
+
+For easier use long commands you can use short aliases:
+
+| Command | Description |
+|---|---|
+| `make deploy` | Install Docker and deploy GitLab |
+| `make backup` | Create backup |
+| `make restore` | Restore latest backup |
+| `make upgrade` | Upgrade GitLab version |
+| `make status` | Show infrastructure status |
+| `make cleanup` | Remove unused Docker images |
+
+Example:
+```sh
+make deploy
+make status
+```
 
 ### Change password
 
@@ -108,11 +128,12 @@ REGISTRATION_TOKEN=your_token ./scripts/register_runner.sh
 
 ### Update version GitLab
 
-1. For update your GitLab to new version, you need to change the version line `gitlab_version` in file `~/group_vars/gitlab.yml` and specify the version you need.
-Example: `gitlab_version: "18.8.3-ce.0"`
-2. Move `upgrade.yml` and `inventory.yml` to your main gitlab directory and run:
-`ansible-playbook -i inventory.yml upgrade.yml -K`
-3. Write your sudo (root) password.
+1. Change `gitlab_version` in `group_vars/gitlab.yml`:
+  `gitlab_version: "18.8.3-ce.0"`
+2. Run:
+  `make upgrade`
+
+A backup is created automatically before upgrading.
 
 ### Backup Gitlab
 
@@ -144,6 +165,14 @@ List with available backups listed automatically at the start of the playbook.
 > **Important:** `gitlab-secrets.json` is restored automatically.
 > Without it, encrypted data cannot be decrypted.  
 
+### Scripts
+
+| Script | Description |
+|---|---|
+| `scripts/status.sh` | Shows containers, version, health, disk usage and backups |
+| `scripts/cleanup.sh` | Removes unused Docker images and stopped containers |
+| `scripts/ch_root_pswd.sh` | Changes GitLab root password |
+| `scripts/register_runner.sh` | Registers GitLab Runner with token |
 
 ### Roadmap
 
@@ -154,6 +183,8 @@ List with available backups listed automatically at the start of the playbook.
 - [x] GitLab version upgrade
 - [x] Automated backups with rotation
 - [x] Backup restore playbook
+- [x] Makefile for common commands
+- [x] Status and cleanup scripts
 - [ ] HTTPS / SSL support
 - [ ] Email notifications
 
