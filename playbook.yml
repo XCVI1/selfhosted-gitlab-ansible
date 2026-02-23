@@ -21,6 +21,7 @@
           - curl
           - gnupg
           - lsb-release
+          - make
         state: present
         update_cache: yes
 
