@@ -7,6 +7,16 @@
     backup_keep_count: 7
 
   tasks:
+    - name: Check free disk space
+      shell: df -BG "{{ backup_dir }}" | tail -1 | awk '{print $4}' | tr -d 'G'
+      register: free_space
+      changed_when: false
+
+    - name: Fail if not enough disk space
+      fail:
+        msg: "Not enough disk space: {{ free_space.stdout }}GB free, need minimum 5"
+      when: free_space.stdout | int < 5
+
     - name: Run GitLab backup
       command: docker exec gitlab gitlab-backup create
       register: backup_result
