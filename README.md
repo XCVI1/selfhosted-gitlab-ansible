@@ -1,6 +1,8 @@
 <a id="readme-top"></a>
 # Self-Hosted GitLab CI/CD Infrastructure (Ansible + Docker)
 
+![CI](https://github.com/XCVI1/selfhosted-gitlab-ansible/actions/workflows/ci.yml/badge.svg)
+
 ## Project Overview
 
 This project automates the deployment of a self-hosted GitLab CI/CD environment using Ansible and Docker Compose. It is designed to provide a fully reproducible environment with a single command.
