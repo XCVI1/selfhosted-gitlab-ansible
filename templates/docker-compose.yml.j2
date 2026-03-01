@@ -1,21 +1,44 @@
 services:
+  postgres:
+    image: postgres:15
+    container_name: gitlab-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: gitlabhq_production
+      POSTGRES_USER: gitlab
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - default
+
   gitlab:
     image: gitlab/gitlab-ce:${GITLAB_VERSION}
     hostname: gitlab
     container_name: gitlab
     restart: always
+    depends_on:
+      - postgres
     ports:
       - "8080:80"
       - "2222:22"
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://gitlab'
+        postgresql['enable'] = false
+        gitlab_rails['db_adapter'] = 'postgresql'
+        gitlab_rails['db_host'] = 'postgres'
+        gitlab_rails['db_port'] = 5432
+        gitlab_rails['db_database'] = 'gitlabhq_production'
+        gitlab_rails['db_username'] = 'gitlab'
+        gitlab_rails['db_password'] = '${POSTGRES_PASSWORD}'
     volumes:
       - ./config:/etc/gitlab
       - ./logs:/var/log/gitlab
       - ./data:/var/opt/gitlab
     networks:
       - default
+
   gitlab-runner:
     image: gitlab/gitlab-runner:latest
     container_name: gitlab-runner
@@ -25,11 +48,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - default
+
 volumes:
   gitlab_config:
   gitlab_logs:
   gitlab_data:
   gitlab_runner_config:
+
 networks:
   default:
-    name: gitlab_default                                 
+    name: gitlab_default
