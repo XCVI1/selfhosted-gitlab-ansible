@@ -2,3 +2,4 @@ gitlab_version: "18.8.3-ce.0"
 gitlab-image: "gitlab/gitlab-ce:{{ gitlab_version }}"
 backup_keep_count: 7
 backups_dir: "{{ lookup('env','HOME') }}/gitlab-docker/data/backups"
+postgres_password: "{{ vault_postgres_password }}"
