@@ -60,7 +60,7 @@
     - name: Start with new version gitlab
       command: docker compose up -d --force-recreate
       args:
-        chdir:  "{{ compose_dir }}"
+        chdir: "{{ compose_dir }}"
 
     - name: Waiting for launch gitlab
       uri:
