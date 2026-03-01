@@ -95,21 +95,21 @@
           POSTGRES_PASSWORD={{ postgres_password }}
         mode: '0600'
       become: no
-          
+
     - name: Run docker compose. This task can be longer, up to 5 minutes
       command: docker compose up -d
       args:
         chdir: "{{ user_home }}/gitlab-docker"
       become_user: "{{ ansible_user_id }}"
       become: no
-    
+
     - name: Wait for port 8080
       wait_for:
         host: localhost
         port: 8080
         delay: 10
         timeout: 600
-          
+
     - name: Wait for GitLab health endpoint
       uri:
         url: "http://localhost:8080/users/sign_in"
@@ -126,7 +126,7 @@
           - " GitLab is deployed and running "
           - " URL: http://localhost:8080 "
           - " Now, you can register runners "
-    
+
     - name: Daily backup cron job
       cron:
         name: "Gitlab daily backup"
