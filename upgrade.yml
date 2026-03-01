@@ -24,7 +24,7 @@
       set_fact:
         current_gitlab_version: >-
           {{ current_gitlab_version_full | regex_replace('-ce.*$', '') }}
-     
+
     - name: Normalize gitlab version
       set_fact:
         target_gitlab_version_short: "{{ gitlab_version | regex_replace('-ce.*$', '') }}"
@@ -51,7 +51,7 @@
 
     - name: Pull new gitlab image
       command: docker pull {{ gitlab_image }}
-   
+
     - name: Stop containers
       command: docker compose down
       args:
@@ -71,4 +71,3 @@
       until: result.status == 200
       retries: 25
       delay: 15
-
