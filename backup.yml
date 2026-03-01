@@ -33,7 +33,7 @@
         mode: '0755'
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
-          
+
     - name: Copy backup archive to host
       command: >
         docker cp gitlab:/var/opt/gitlab/backups/{{ latest_backup.stdout | trim }}
@@ -75,4 +75,4 @@
 
     - name: Show backup summary
       debug:
-        msg: "{{ current_backups.stdout_lines }}" 
+        msg: "{{ current_backups.stdout_lines }}"
