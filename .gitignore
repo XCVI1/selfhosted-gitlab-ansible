@@ -4,6 +4,7 @@
 *.swo
 
 .vscode/
+group_vars/vault.yml
 
 *.env
 
