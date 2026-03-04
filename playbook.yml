@@ -79,6 +79,20 @@
       become_user: "{{ ansible_user_id }}"
       become: no
 
+    - name: Create monitoring directory
+      file:
+        path: "{{ user_home }}/gitlab_docker/monitoring"
+        state: directory
+        mode: "0755"
+      become: no
+
+    - name: Copy prometheus config
+      copy:
+        src: monitoring/prometheus.yml
+        dest: "{{ user_home }}/gitlab_docker/monitoring/prometheus.yml"
+        mode: "0644"
+      become: no
+
     - name: Copy docker-compose.yml
       template:
         src: templates/docker-compose.yml.j2
@@ -93,6 +107,7 @@
         content: |
           GITLAB_VERSION={{ gitlab_version }}
           POSTGRES_PASSWORD={{ postgres_password }}
+          GRAFANA_PASSWORD={{ grafana_password }}
         mode: '0600'
       become: no
 
