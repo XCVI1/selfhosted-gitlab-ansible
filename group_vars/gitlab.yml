@@ -3,3 +3,4 @@ gitlab-image: "gitlab/gitlab-ce:{{ gitlab_version }}"
 backup_keep_count: 7
 backups_dir: "{{ lookup('env','HOME') }}/gitlab-docker/data/backups"
 postgres_password: "{{ vault_postgres_password }}"
+grafana_password: "{{ vault_grafana_password }}"
